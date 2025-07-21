@@ -32,6 +32,23 @@ export TEST_FREQ=10
 export TOTAL_EPOCHS=30
 export MAX_CKPT_KEEP=5
 
+# --- Distributed Training & Infrastructure ---
+export N_GPUS_PER_NODE=${N_GPUS_PER_NODE:-8}
+export NNODES=${PET_NNODES:-1}
+export NODE_RANK=${PET_NODE_RANK:-0}
+export MASTER_ADDR=${MASTER_ADDR:-localhost}
+
+# --- Output Paths and Experiment Naming ---
+export CKPT_PATH=${BASE_CKPT_PATH}/${MODEL_NAME}_${ALG}_${DATASET}_hybrid_${NNODES}nodes
+export PROJECT_NAME=siirl_${DATASET}_${ALG}
+export EXPERIMENT_NAME=siirl_${MODEL_NAME}_${ALG}_${DATASET}_experiment
+export TENSORBOARD_DIR=${BASE_TENSORBOARD_PATH}/${MODEL_NAME}_${ALG}_${DATASET}_hybrid_tensorboard/dlc_${NNODES}_$timestamp
+export SIIRL_LOGGING_FILENAME=${MODEL_NAME}_${ALG}_${DATASET}_hybrid_${NNODES}_$timestamp
+
+# --- Calculated Global Hyperparameters ---
+export TRAIN_BATCH_SIZE=$(($TRAIN_BATCH_SIZE_PER_NODE * $NNODES))
+export PPO_MINI_BATCH_SIZE=$(($PPO_MINI_BATCH_SIZE_PER_NODE * $NNODES))
+
 # --- Define the Training Command and its Arguments ---
 TRAINING_CMD=(
     python3 -m siirl.client.main_dag
@@ -143,20 +160,6 @@ main() {
     ray stop --force
 
     if [ "$HOME" = "{your_home_path}" ] || [ -z "$HOME" ]; then echo "ERROR: Please set 'HOME' variable." >&2; exit 1; fi
-    
-    export N_GPUS_PER_NODE=${N_GPUS_PER_NODE:-16}
-    export NNODES=${PET_NNODES:-1}
-    export NODE_RANK=${PET_NODE_RANK:-0}
-    export MASTER_ADDR=${MASTER_ADDR:-localhost}
-
-    export CKPT_PATH=${BASE_CKPT_PATH}/${MODEL_NAME}_${ALG}_${DATASET}_hybrid_${NNODES}nodes
-    export PROJECT_NAME=siirl_${DATASET}_${ALG}
-    export EXPERIMENT_NAME=siirl_${MODEL_NAME}_${ALG}_${DATASET}_experiment
-    export TENSORBOARD_DIR=${BASE_TENSORBOARD_PATH}/${MODEL_NAME}_${ALG}_${DATASET}_hybrid_tensorboard/dlc_${NNODES}_$timestamp
-    export SIIRL_LOGGING_FILENAME=${MODEL_NAME}_${ALG}_${DATASET}_hybrid_${NNODES}_$timestamp
-    
-    export TRAIN_BATCH_SIZE=$(($TRAIN_BATCH_SIZE_PER_NODE * $NNODES))
-    export PPO_MINI_BATCH_SIZE=$(($PPO_MINI_BATCH_SIZE_PER_NODE * $NNODES))
 
     export GLOO_SOCKET_TIMEOUT=600
     export GLOO_TCP_TIMEOUT=600
