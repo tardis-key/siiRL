@@ -20,8 +20,9 @@ MM-Eureka problems consist of a text-based question paired with one or more imag
 **An example from MM-Eureka:**
 
 **Prompt:**
-   .. image:: /_static/cube.jpg
+   .. image:: https://github.com/sii-research/siiRL/raw/main/docs/_static/cube.jpg
       :width: 50%
+
    Question: A cube loses one vertex after a 'corner' is removed. This geometric shape is ___ (fill in the number).
 
 **Answer:**

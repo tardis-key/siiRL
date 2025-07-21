@@ -24,7 +24,7 @@ The DistFlow Architecture
 DistFlow is composed of three core components that work in concert to deliver a scalable and flexible RL training system.
 
 
-.. figure:: /_static/distflow_overview.png
+.. figure:: https://github.com/sii-research/siiRL/raw/main/asset/overview.png
    :alt: The DistFlow Execution Diagram
    :align: center
 
