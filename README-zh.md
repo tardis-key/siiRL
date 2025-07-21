@@ -10,7 +10,7 @@ siiRL: Shanghai Inovation Institute RL Framework for LLM Post-Training
 
 <p align="center">
 | <a href="https://arxiv.org/abs/2507.13833"><b>📄 论文</b></a> | 
-| <a href="[LINK TO YOUR DOCUMENTATION]"><b>📚 文档</b></a> | 
+| <a href="https://siirl.readthedocs.io/en/latest/index.html"><b>📚 文档</b></a> | 
 | <a href="asset/siiRL-feishu-group.png"><b>💬 联系我们</b></a> |
 | <a href="README.md"><b> English</b></a> |
 </p>
@@ -85,7 +85,7 @@ siiRL 展示了近线性的扩展能力，可平滑扩展至 1024 张 GPU。相�
 <p align="center">
 <img src="asset/scaling_trend_new.png" width="80%" alt="siiRL 扩展性测试"/>
 <br>
-<em>图 4: siiRL 在 VLM 模型上的近线性扩展性测试</em>
+<em>图 4: siiRL 在 VLM 模型上的扩展性测试</em>
 </p>
 
 <p align="center">
@@ -116,9 +116,11 @@ siiRL 展示了近线性的扩展能力，可平滑扩展至 1024 张 GPU。相�
 
 ## 📚 相关资源
 
-* **[文档]**([LINK TO YOUR DOCS])
-* **[安装指南]**([LINK TO INSTALLATION DOCS])
-* **[快速入门: 运行 PPO/GRPO]**([LINK TO QUICKSTART GUIDE])
+<a href="https://siirl.readthedocs.io/en/latest/index.html"><b>使用文档</b></a>
+
+- <a href="https://siirl.readthedocs.io/en/latest/start/install.html"><b>安装指南</b></a>
+
+- <a href="https://siirl.readthedocs.io/en/latest/start/quickstart.html"><b>快速入门: 运行 PPO/GRPO</b></a>
 
 ---
 

@@ -7,8 +7,8 @@
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = "siiRL"
-copyright = "2025, sii ai-infra team"
-author = "sii ai-infra team"
+copyright = "2025, SII AI Infra Team"
+author = "SII AI Infra Team"
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration

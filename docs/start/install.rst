@@ -17,6 +17,17 @@ Install from docker image
 
 The stable image is ``siiai/siirl-base:vllm0.8.5.post1-sglang0.4.6.post5-cu124``. This images contains the latest version of inference and training framework and its dependencies.
 
+
+Install from PIP
+-----------------
+
+We provide prebuilt python wheels for Linux. Install siiRL with the following command:
+
+.. code:: bash
+
+    pip install siirl
+
+
 Install from custom environment
 ---------------------------------------------
 

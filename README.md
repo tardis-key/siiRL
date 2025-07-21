@@ -11,7 +11,7 @@ siiRL: Shanghai Inovation Institute RL Framework for LLM Post-Training
 
 <p align="center">
 | <a href="https://arxiv.org/abs/2507.13833"><b>📄 Paper</b></a> | 
-| <a href="[LINK TO YOUR DOCUMENTATION]"><b>📚 Documentation</b></a> | 
+| <a href="https://siirl.readthedocs.io/en/latest/index.html"><b>📚 Documentation</b></a> | 
 | <a href="asset/siiRL-feishu-group.png"><b>💬 Contact Us</b></a> |
 | <a href="README-zh.md"><b>🇨🇳 中文</b></a> |
 </p>
@@ -117,9 +117,11 @@ Experiments confirm that siiRL's performance optimizations do not come at the co
 
 ## 📚 Resources
 
-* **[Documentation]**([LINK TO YOUR DOCS])
-* **[Installation]**([LINK TO INSTALLATION DOCS])
-* **[Quickstart: Running PPO/GRPO]**([LINK TO QUICKSTART GUIDE])
+<a href="https://siirl.readthedocs.io/en/latest/index.html"><b>Documentation</b></a>
+
+- <a href="https://siirl.readthedocs.io/en/latest/start/install.html"><b>Installation</b></a>
+
+- <a href="https://siirl.readthedocs.io/en/latest/start/quickstart.html"><b>Quickstart: Running PPO/GRPO</b></a>
 
 ---
 
