@@ -184,4 +184,4 @@ If you encounter out of memory issues with HBM less than 32GB, enable the follow
 For the full set of configs, please refer to :ref:`config-explain-page` for detailed explanation and performance tuning.
 
 
-.. [1] More training script examples for FSDP and Megatron-LM backend are stored in `examples/ppo_trainer <https://gitee.sii.edu.cn/sii/repos/ai-infra/siiRL/tree/main/examples%2Fppo_trainer>`_ directory.
+.. [1] More training script examples for FSDP backend are stored in `examples/ppo_trainer <https://github.com/sii-research/siiRL/tree/main/examples/ppo_trainer>`_ directory.
