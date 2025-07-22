@@ -68,7 +68,7 @@ answer from both the solution and model's output using regular
 expression matching. We assign a reward of 1 to correct
 answer, 0.0 to incorrect answer and 0 to no answer. 
 
-For more details, please refer to `siirl/utils/reward_score/gsm8k.py <TBD>`_.
+For more details, please refer to `siirl/utils/reward_score/gsm8k.py <https://github.com/sii-research/siiRL/blob/main/siirl/utils/reward_score/gsm8k.py>`_.
 
 **Training Script**
 

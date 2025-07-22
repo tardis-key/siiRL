@@ -27,14 +27,14 @@ Ensure your environment meets these core software version requirements:
 Recommended Base Image
 ^^^^^^^^^^^^^^^^^^^^^^
 
-For a smoother setup, we recommend using our pre-built Docker image, which includes all necessary dependencies.
+For a smoother setup, we strongly recommend using our pre-built Docker image, which includes all necessary dependencies. Please note this pre-built docker image contains torch, torch-npu, vLLM and vLLM-Ascend packages, after pulling it you only need to install siiRL framework from source.
 
 .. code-block:: bash
 
     docker pull crispig/verl_npu:cann8.1rc1-py3.10-torch2.5.1-vllm-ascend0.7.3.post1-250616
 
-Compiling vLLM and vllm-ascend
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Compiling vLLM and vllm-ascend [Optional]
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Proper integration of vLLM within siiRL requires compiling both `vllm` and `vllm-ascend` from source. Follow the steps below, paying close attention to the instructions specific to your hardware.
 
@@ -59,13 +59,12 @@ Proper integration of vLLM within siiRL requires compiling both `vllm` and `vllm
 SiiRL Installation
 ^^^^^^^^^^^^^^^^^^
 
-Finally, install the siiRL framework itself.
+Finally, install the siiRL framework itself. DO NOT use the pip install command to install siiRL, it will cause dependency conflicts.
 
 .. code-block:: bash
 
-    git clone TBD
+    git clone https://github.com/sii-research/siiRL.git
     cd siirl
-    pip install -r requirements-npu.txt
     pip install -e .
 
 Third-Party Library Considerations
