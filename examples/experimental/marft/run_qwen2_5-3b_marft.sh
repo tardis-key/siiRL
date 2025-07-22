@@ -156,7 +156,7 @@ main() {
     local timestamp=$(date +"%Y%m%d_%H%M%S")
     ray stop --force
 
-    if [ "$HOME" = "{your_home_path}" ] || [ -z "$HOME" ]; then echo "ERROR: Please set 'HOME' variable." >&2; exit 1; fi
+    
 
     export N_GPUS_PER_NODE=${N_GPUS_PER_NODE:-8}
     export NNODES=${PET_NNODES:-1}
