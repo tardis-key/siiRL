@@ -149,7 +149,7 @@ siiRL 仍在积极开发中。我们对未来充满期待，并致力于在两�
 
 我们首先要感谢开源 RL 框架 [verl](https://github.com/volcengine/verl)，我们使用它作为评测的主要基线系统。我们特别感谢其分层的 API 设计；我们复用了 verl 中的 `3DParallelWorker` 基类来管理 siiRL 中的系统组件。
 
-siiRL 的构建也离不开其他优秀的开源项目。我们衷心感谢 PyTorch、Ray、vLLM 和 SGLang 团队的杰出工作。
+siiRL 的构建也离不开其他优秀的开源项目。我们衷心感谢 PyTorch、Ray、vLLM、vLLM-Ascend 和 SGLang 团队的杰出工作。
 
 我们的工作旨在解决研究过程中发现的扩展性挑战，并希望 siiRL 能为社区的共同进步做出积极贡献。
 
