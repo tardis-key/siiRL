@@ -171,7 +171,7 @@ main() {
     local timestamp=$(date +"%Y%m%d_%H%M%S")
     ray stop --force
 
-    if [ "$HOME" = "{your_home_path}" ] || [ -z "$HOME" ]; then echo "ERROR: Please set 'HOME' variable." >&2; exit 1; fi
+    
 
     export VLLM_USE_V1=1
     export GLOO_SOCKET_IFNAME=bond0
