@@ -1,6 +1,11 @@
 Installation
 ============
 
+siiRL provides three primary installation methods. We **strongly recommend** using the Docker image for the most reliable and hassle-free experience.
+
+* :ref:`Method 1: Install from Docker Image (Recommended) <install-docker>`
+* :ref:`Method 2: Install from PyPI (pip) <install-pip>`
+* :ref:`Method 3: Install from Source (Custom Environment) <install-source>`
 Requirements
 ------------
 
@@ -12,13 +17,14 @@ Currently, siiRL supports the following configurations are available:
 - **FSDP** for training.
 - **SGLang** and **vLLM** for rollout generation.
 
-Install from docker image
+.. _install-docker:
+Method 1: Install from docker image
 -------------------------
 
 The stable image is ``siiai/siirl-base:vllm0.8.5.post1-sglang0.4.6.post5-cu124``. This images contains the latest version of inference and training framework and its dependencies.
 
-
-Install from PIP
+.. _install-pip:
+Method 2: Install from PIP
 -----------------
 
 We provide prebuilt python wheels for Linux. Install siiRL with the following command:
@@ -27,69 +33,15 @@ We provide prebuilt python wheels for Linux. Install siiRL with the following co
 
     pip install siirl
 
+    pip install torch==2.6.0 torchvision==0.21.0 torchaudio==2.6.0 --index-url https://download.pytorch.org/whl/cu124
+    pip install flashinfer-python -i https://flashinfer.ai/whl/cu124/torch2.6/
+    pip install flash-attn==2.7.3 --no-build-isolation   
 
-Install from custom environment
+.. _install-source:
+Method 3: Install from custom environment
 ---------------------------------------------
 
 We recommend to use docker images for convenience. However, if your environment is not compatible with the docker image, you can also install siirl in a python environment.
-
-
-Pre-requisites
-::::::::::::::
-
-For training and inference engines to utilize better and faster hardware support, CUDA/cuDNN and other dependencies are required,
-and some of the dependencies are easy to be overridden when installing other packages,
-so we put them in the :ref:`Post-installation` step.
-
-.. note::
-
-    The installation steps below are recommended configurations for the latest version of siirl.
-    If you are trying to customize your own environment, please ignore the strict constraints.
-
-We need to install the following pre-requisites:
-
-- **CUDA**: Version >= 12.4
-- **cuDNN**: Version >= 9.8.0
-- **Apex**
-
-CUDA above 12.4 is recommended to use as the docker image,
-please refer to `NVIDIA's official website <https://developer.nvidia.com/cuda-toolkit-archive>`_ for other version of CUDA.
-
-.. code:: bash
-
-    # change directory to anywher you like, in siirl source code directory is not recommended
-    wget https://developer.download.nvidia.com/compute/cuda/12.4.1/local_installers/cuda-repo-ubuntu2204-12-4-local_12.4.1-550.54.15-1_amd64.deb
-    dpkg -i cuda-repo-ubuntu2204-12-4-local_12.4.1-550.54.15-1_amd64.deb
-    cp /var/cuda-repo-ubuntu2204-12-4-local/cuda-*-keyring.gpg /usr/share/keyrings/
-    apt-get update
-    apt-get -y install cuda-toolkit-12-4
-    update-alternatives --set cuda /usr/local/cuda-12.4
-
-
-cuDNN can be installed via the following command,
-please refer to `NVIDIA's official website <https://developer.nvidia.com/rdp/cudnn-archive>`_ for other version of cuDNN.
-
-.. code:: bash
-
-    # change directory to anywher you like, in siirl source code directory is not recommended
-    wget https://developer.download.nvidia.com/compute/cudnn/9.8.0/local_installers/cudnn-local-repo-ubuntu2204-9.8.0_1.0-1_amd64.deb
-    dpkg -i cudnn-local-repo-ubuntu2204-9.8.0_1.0-1_amd64.deb
-    cp /var/cudnn-local-repo-ubuntu2204-9.8.0/cudnn-*-keyring.gpg /usr/share/keyrings/
-    apt-get update
-    apt-get -y install cudnn-cuda-12
-
-NVIDIA Apex is required for FSDP training.
-You can install it via the following command, but notice that this steps can take a very long time.
-It is recommended to set the ``MAX_JOBS`` environment variable to accelerate the installation process,
-but do not set it too large, otherwise the memory will be overloaded and your machines may hang.
-
-.. code:: bash
-
-    # change directory to anywher you like, in siirl source code directory is not recommended
-    git clone https://github.com/NVIDIA/apex.git && \
-    cd apex && \
-    MAX_JOB=32 pip install -v --disable-pip-version-check --no-cache-dir --no-build-isolation --config-settings "--build-option=--cpp_ext" --config-settings "--build-option=--cuda_ext" ./
-
 
 Install dependencies
 ::::::::::::::::::::
@@ -116,6 +68,7 @@ Install dependencies
 
 .. code:: bash
 
+    pip install torch==2.6.0 torchvision==0.21.0 torchaudio==2.6.0 --index-url https://download.pytorch.org/whl/cu124
     pip install flashinfer-python -i https://flashinfer.ai/whl/cu124/torch2.6/
     pip install flash-attn==2.7.3 --no-build-isolation
     pip install accelerate codetiming datasets dill hydra-core pandas wandb loguru tensorboard qwen_vl_utils
