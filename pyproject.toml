@@ -70,8 +70,7 @@ dependencies = [
     "pylatexenc",
     "ray[default]>=2.47.1",
     "torchdata",
-    "tensordict<=0.6.2",
-    "transformers",
+    "tensordict>=0.8.0,<=0.9.1,!=0.9.0",
     "wandb",
     "tensorboard",
     "mathruler",
@@ -83,12 +82,16 @@ dependencies = [
     "dacite",
     "qwen_vl_utils",
     "scipy",
+    "fastapi",
+    "transformers<=4.51.3",
+    "pyext",
+    "math-verify",
 ]
 
 
 # --- Optional Dependencies ---
 # Corresponds to 'extras_require' in setup.py.
-# Install with: pip install "siirl[gpu,vllm]"
+# Install with: pip install "siirl[gpu]"
 [project.optional-dependencies]
 # For core development and releasing
 dev = [
@@ -104,17 +107,17 @@ test = [
     "pre-commit",
     "py-spy",
 ]
-prime = ["pyext"]
+
 geo = ["mathruler"]
 gpu = ["liger-kernel", "flash-attn"]
-math = ["math-verify"]
-vllm = ["tensordict<=0.6.2", "vllm>=0.8.3"]
+vllm = ["tensordict>=0.8.0,<=0.9.1,!=0.9.0", "vllm>=0.7.3,<=0.8.5"]
 sglang = [
-    "tensordict<=0.6.2",
-    "sglang[srt,openai]==0.4.6.post5",
+    "tensordict>=0.8.0,<=0.9.1,!=0.9.0",
+    "sglang[all]==0.4.6.post5",
     "torch-memory-saver>=0.0.5",
     "torch==2.6.0",
 ]
+
 
 # --- Project URLs ---
 # This table should only contain string key-value pairs for URLs.
