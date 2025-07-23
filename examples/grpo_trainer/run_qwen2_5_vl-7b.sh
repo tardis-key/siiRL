@@ -13,7 +13,7 @@ export MODEL_NAME=qwen2.5-vl-7b
 export HOME={your_home_path}
 export TRAIN_DATA_PATH=$HOME/data/datasets/$DATASET/train.parquet
 export TEST_DATA_PATH=$HOME/data/datasets/$DATASET/test.parquet
-export MODEL_PATH=$HOME/data/models/Qwen2.5-7B-Instruct
+export MODEL_PATH=$HOME/data/models/Qwen2.5-VL-7B-Instruct
 
 # Base output paths
 export BASE_CKPT_PATH=ckpts
