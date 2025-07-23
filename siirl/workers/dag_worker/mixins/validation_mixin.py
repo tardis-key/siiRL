@@ -114,6 +114,10 @@ class ValidationMixin:
             non_tensor_batch_keys_to_pop.extend(["multi_modal_data", "multi_modal_inputs"])
         if "tools_kwargs" in batch.non_tensor_batch:
             non_tensor_batch_keys_to_pop.append("tools_kwargs")
+        if "raw_prompt" in batch.non_tensor_batch:
+            non_tensor_batch_keys_to_pop.append("raw_prompt")
+        if "interaction_kwargs" in batch.non_tensor_batch:
+            non_tensor_batch_keys_to_pop.append("interaction_kwargs")
         return batch.pop(
             batch_keys=batch_keys_to_pop,
             non_tensor_batch_keys=non_tensor_batch_keys_to_pop,
@@ -135,12 +139,20 @@ class ValidationMixin:
 
         dp_size, _, _, _ = self._get_node_dp_info(self.first_rollout_node)
         gen_batch_padded, pad_size = pad_dataproto_to_divisor(gen_batch, dp_size)
-        output_padded = rollout_worker.generate_sequences(gen_batch_padded)
-        output_unpadded = unpad_dataproto(output_padded, pad_size=pad_size)
-        return batch_proto.union(output_unpadded)
+        output_padded = None
+        if self.rollout_mode == 'sync':
+            output_padded = rollout_worker.generate_sequences(gen_batch_padded)
+        elif self._async_rollout_manager:
+            output_padded = self._async_rollout_manager.generate_sequences(gen_batch_padded)
+        if output_padded:
+            output_unpadded = unpad_dataproto(output_padded, pad_size=pad_size)
+            batch_proto.union(output_unpadded)
+        return batch_proto
 
     def _score_and_package_results(self, generated_proto: DataProto) -> List[ValidationResult]:
         """Scores generated sequences and packages them into ValidationResult objects."""
+        if self.rollout_mode == 'async' and self._async_rollout_manager is None:
+            return []
         reward_result = self.val_reward_fn(generated_proto, return_dict=True)
         scores = reward_result["reward_tensor"].sum(-1).cpu()
 

@@ -46,7 +46,11 @@ def _compute_response_info(batch: DataProto) -> Dict[str, Any]:
     response_length = batch.batch["responses"].shape[-1]
 
     prompt_mask = batch.batch["attention_mask"][:, :-response_length]
-    response_mask = batch.batch["attention_mask"][:, -response_length:]
+
+    if "response_mask" not in batch.batch:
+        response_mask = batch.batch["attention_mask"][:, -response_length:]
+    else:
+        response_mask = batch.batch["response_mask"]
 
     prompt_length = prompt_mask.sum(-1).float()
     response_length = response_mask.sum(-1).float()  # (batch_size,)
