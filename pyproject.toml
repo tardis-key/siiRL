@@ -84,8 +84,8 @@ dependencies = [
     "scipy",
     "fastapi",
     "transformers<=4.51.3",
-    "pyext",
     "math-verify",
+    "vllm==0.8.5.post1",
 ]
 
 
@@ -106,6 +106,7 @@ test = [
     "pytest",
     "pre-commit",
     "py-spy",
+    "pyext",
 ]
 
 geo = ["mathruler"]
