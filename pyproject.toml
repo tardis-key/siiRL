@@ -84,8 +84,8 @@ dependencies = [
     "scipy",
     "fastapi",
     "transformers<=4.51.3",
-    "pyext",
     "math-verify",
+    "vllm==0.8.5.post1",
 ]
 
 
@@ -106,11 +106,11 @@ test = [
     "pytest",
     "pre-commit",
     "py-spy",
+    "pyext",
 ]
 
 geo = ["mathruler"]
 gpu = ["liger-kernel", "flash-attn"]
-vllm = ["tensordict>=0.8.0,<=0.9.1,!=0.9.0", "vllm>=0.7.3,<=0.8.5"]
 sglang = [
     "tensordict>=0.8.0,<=0.9.1,!=0.9.0",
     "sglang[all]==0.4.6.post5",
