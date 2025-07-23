@@ -859,7 +859,7 @@ class UtilitiesMixin:
         log_str += f"\n--- 🔥 Model Flops Utilization (MFU) ---\n"
         log_str += f"  {'Mean MFU':<28}: {get_metric('perf/mfu/mean', 3)}\n"
         log_str += f"  {'Actor Training MFU':<28}: {get_metric('perf/mfu/actor', 3)}\n"
-        log_str += f"  {'Rollout MFU':<28}: {get_metric('perf/mfu/rollout', 3)}\n"
+        # log_str += f"  {'Rollout MFU':<28}: {get_metric('perf/mfu/rollout', 3)}\n"
         log_str += f"  {'Reference Policy MFU':<28}: {get_metric('perf/mfu/ref', 3)}\n"
         log_str += f"  {'Actor LogProb MFU':<28}: {get_metric('perf/mfu/actor_log_prob', 3)}\n"
 

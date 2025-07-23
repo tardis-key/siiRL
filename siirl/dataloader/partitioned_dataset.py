@@ -123,6 +123,8 @@ class PartitionedRLHFDataset(Dataset):
         self.video_fps = self.data_args.processor.video_fps
         self.video_maxlen = self.data_args.processor.video_maxlen
 
+        self.is_trailing_rank = False  # Indicates trailing ranks that received one less data item in round-robin partitioning.
+
         if self._rank == 0:
             logger.debug(f"Initializing PartitionedRLHFDataset with DDP rank {self.ddp_rank}, world size {self.ddp_world_size}, is_eval={self.is_eval}, drop_last={self.drop_last}")
 
@@ -140,7 +142,23 @@ class PartitionedRLHFDataset(Dataset):
 
         # 2. Filter out prompts that are too long from the loaded partition
         raw_dataframe = self._filter_overlong_prompts(raw_dataframe)
-
+        
+        # If this rank received fewer samples due to uneven partitioning, pad by duplicating the last row.
+        if self.is_trailing_rank and raw_dataframe is not None and len(raw_dataframe) > 0:
+            try:
+                # Duplicate the last row to pad the partition
+                last_row = raw_dataframe[-1].copy()
+                if "extra_info" in last_row and isinstance(last_row["extra_info"], dict):
+                    last_row["extra_info"]["padded_duplicate"] = True
+                else:
+                    last_row["extra_info"] = {"padded_duplicate": True}
+                last_row_ds = datasets.Dataset.from_list([last_row])
+                raw_dataframe = datasets.concatenate_datasets([raw_dataframe, last_row_ds])
+                logger.debug(f"DDP rank {self.ddp_rank} is a trailing rank, duplicating last row to pad partition. New length: {len(raw_dataframe)}")
+            except Exception:
+                # We can safely ignore this exception because we mainly rely on the 'padded_duplicate' flag to identify padded elements.
+                raise
+            
         # 3. Preprocess the entire partition using multiple processes
         # By only removing the specific prompt_key, we ensure that other columns,
         # including complex types like dicts and strings from the original dataset,
@@ -211,6 +229,7 @@ class PartitionedRLHFDataset(Dataset):
                 else:
                     start = remainder * (rows_per_rank + 1) + (self.ddp_rank - remainder) * rows_per_rank
                     end = start + rows_per_rank
+                    self.is_trailing_rank = True # There is one less sample compared to the previous ranks.
 
             if start >= end:
                 raise RuntimeError(f"Rank {self.ddp_rank} assigned empty partition: start={start}, end={end}, total_rows={total_rows}")
@@ -240,8 +259,7 @@ class PartitionedRLHFDataset(Dataset):
                 raise RuntimeError(f"DDP Rank {self.ddp_rank} assigned rows [{start}, {end}) but failed to read any data.")
 
             final_table = pa.concat_tables(tables)
-            if self._rank == 0:
-                logger.debug(f"DDP rank={self.ddp_rank} loaded {len(final_table)} rows from {len(tables)} row groups. start={start}, end={end}, total_rows={total_rows}.")
+            logger.debug(f"DDP rank={self.ddp_rank} loaded {len(final_table)} rows from {len(tables)} row groups. start={start}, end={end}, total_rows={total_rows}.")
             return datasets.Dataset(final_table)
 
         except Exception as e:

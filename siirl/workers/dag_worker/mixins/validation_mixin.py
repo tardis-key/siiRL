@@ -85,9 +85,8 @@ class ValidationMixin:
                 payloads = [ValidationPayload(r.input_text, r.score, r.data_source, r.extra_rewards) for r in scored_results]
 
             all_results_payloads.extend(payloads)
-
+        
         # Gather all lightweight payloads to rank 0
-        dist.barrier(self._gather_group)
         with self._timer("gather_payloads", self.timers):
             gathered_payloads_on_rank0 = [None] * self.world_size if self._rank == 0 else None
             dist.gather_object(all_results_payloads, gathered_payloads_on_rank0, dst=0, group=self._gather_group)
@@ -95,9 +94,10 @@ class ValidationMixin:
         # Rank 0 performs the final aggregation and logging
         if self._rank == 0:
             flat_payload_list = [p for sublist in gathered_payloads_on_rank0 if sublist for p in sublist]
-            return self._aggregate_and_log_validation_metrics(flat_payload_list)
-
-        return {}  # Non-zero ranks return an empty dict
+            final_metrics = self._aggregate_and_log_validation_metrics(flat_payload_list)
+        dist.barrier(self._gather_group)
+        
+        return final_metrics if self._rank == 0 else {}   # Non-zero ranks return an empty dict
 
     def _prepare_validation_batch(self) -> DataProto:
         """Fetches and prepares a single batch for validation."""
@@ -148,8 +148,13 @@ class ValidationMixin:
         output_texts = self.validate_tokenizer.batch_decode(generated_proto.batch["responses"], skip_special_tokens=True)
         data_sources = generated_proto.non_tensor_batch.get("data_source", ["unknown"] * len(scores))
 
+        extra_info = generated_proto.non_tensor_batch.get("extra_info", [None] * len(scores))
+
         packaged_results = []
         for i in range(len(scores)):
+            if self.dataloader.is_val_trailing_rank and isinstance(extra_info[i], dict) and extra_info[i].get("padded_duplicate", None):
+                logger.debug(f"Rank {self._rank} skip append padded duplicate item {i}: score={scores[i].item()}")
+                continue
             extra_rewards = {k: v[i] for k, v in reward_result.get("reward_extra_info", {}).items()}
             packaged_results.append(ValidationResult(input_texts[i], output_texts[i], scores[i].item(), data_sources[i], reward_result["reward_tensor"][i], extra_rewards))
         return packaged_results

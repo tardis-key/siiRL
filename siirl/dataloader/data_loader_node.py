@@ -194,6 +194,9 @@ class DataLoaderNode(Node):
         # Update total training steps in optimizer configs for actor and critic
         self.global_config.actor_rollout_ref.actor.optim.total_training_steps = total_training_steps
         self.global_config.critic.optim.total_training_steps = total_training_steps
+        
+        # Indicates the samples for this rank has already been expand
+        self.is_val_trailing_rank = self.val_dataset.is_trailing_rank
 
     def get_train_dataloader(self):
         """
