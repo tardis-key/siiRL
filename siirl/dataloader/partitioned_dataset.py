@@ -157,7 +157,7 @@ class PartitionedRLHFDataset(Dataset):
                 logger.debug(f"DDP rank {self.ddp_rank} is a trailing rank, duplicating last row to pad partition. New length: {len(raw_dataframe)}")
             except Exception:
                 # We can safely ignore this exception because we mainly rely on the 'padded_duplicate' flag to identify padded elements.
-                raise
+                pass
             
         # 3. Preprocess the entire partition using multiple processes
         # By only removing the specific prompt_key, we ensure that other columns,
