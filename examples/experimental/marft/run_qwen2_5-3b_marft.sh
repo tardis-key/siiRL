@@ -18,6 +18,11 @@ export MODEL_PATH=$HOME/data/models/Qwen2.5-3B-Instruct
 export BASE_CKPT_PATH=ckpts
 export BASE_TENSORBOARD_PATH=tensorboard
 
+# --- Multi-node (Multi-machine) distributed training environments ---
+
+# Uncomment the following line and set the correct network interface if needed for distributed backend
+# export GLOO_SOCKET_IFNAME=bond0  # Modify as needed
+
 # --- Key Training Hyperparameters ---
 export TRAIN_BATCH_SIZE_PER_NODE=512
 export PPO_MINI_BATCH_SIZE_PER_NODE=128

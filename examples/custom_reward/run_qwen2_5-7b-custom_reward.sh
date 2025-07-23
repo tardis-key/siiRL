@@ -52,6 +52,11 @@ export TEST_FREQ=10
 export TOTAL_EPOCHS=30
 export MAX_CKPT_KEEP=5
 
+# --- Multi-node (Multi-machine) distributed training environments ---
+
+# Uncomment the following line and set the correct network interface if needed for distributed backend
+# export GLOO_SOCKET_IFNAME=bond0  # Modify as needed
+
 # --- Cluster Configuration (Usually no changes needed below) ---
 
 # These variables are typically set by the cluster job scheduler (e.g., Slurm, DLC).
