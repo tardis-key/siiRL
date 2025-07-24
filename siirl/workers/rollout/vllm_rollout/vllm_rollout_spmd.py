@@ -26,6 +26,13 @@ When working with Megatron:
 - After inference, all the parameters that doesn't belong to this pp rank is freed.
 """
 
+
+
+import pickle
+import socket
+import threading
+import ray
+import zmq
 import csv
 import os
 import time
@@ -42,12 +49,18 @@ from packaging import version as vs
 from typing import Any, Dict, List, Union
 from zoneinfo import ZoneInfo
 
+
+from filelock import FileLock
+from omegaconf import DictConfig, OmegaConf
+from types import MethodType
+
 from loguru import logger
 from tensordict import TensorDict
 from vllm import LLM, SamplingParams
 from vllm.distributed import parallel_state as vllm_ps
 from vllm.lora.request import LoRARequest
 from vllm.worker.worker_base import WorkerWrapperBase
+from vllm.model_executor.sampling_metadata import SamplingMetadata
 
 from siirl import DataProto
 from siirl.utils.debug import GPUMemoryLogger
@@ -197,6 +210,7 @@ class vLLMRollout(BaseRollout):
         for k in dictConfig.keys():
             if hasattr(SamplingParams(), str(k)):
                 kwargs[k] = dictConfig.get(k)
+        # kwargs["n"] = 1  # already repeat in ray_trainer
 
         logger.info(f"kwargs: {kwargs}")
         self.sampling_params = SamplingParams(**kwargs)
@@ -387,6 +401,14 @@ class vLLMRollout(BaseRollout):
                 # NOTE(linjunrong): for multi-turn https://github.com/volcengine/verl/pull/1037
                 if "tools_kwargs" in non_tensor_batch.keys():
                     non_tensor_batch["tools_kwargs"] = _repeat_interleave(non_tensor_batch["tools_kwargs"], self.sampling_params.n)
+                if "interaction_kwargs" in non_tensor_batch.keys():
+                    non_tensor_batch["interaction_kwargs"] = _repeat_interleave(
+                        non_tensor_batch["interaction_kwargs"], self.sampling_params.n
+                    )
+                if "raw_prompt" in non_tensor_batch.keys():
+                    non_tensor_batch["raw_prompt"] = _repeat_interleave(
+                        non_tensor_batch["raw_prompt"], self.sampling_params.n
+                    )
 
             seq = torch.cat([idx, response], dim=-1)
 
@@ -411,7 +433,7 @@ class vLLMRollout(BaseRollout):
                 "prompts": idx,
                 "responses": response,
                 "input_ids": seq,  # here input_ids become the whole sentences
-                "rollout_log_probs": rollout_log_probs,  # we will recompute old log prob with actor
+                'rollout_log_probs': rollout_log_probs,  # we will recompute old log prob with actor
                 "attention_mask": attention_mask,
                 "position_ids": position_ids,
             },
@@ -421,16 +443,75 @@ class vLLMRollout(BaseRollout):
         return DataProto(batch=batch, non_tensor_batch=non_tensor_batch, meta_info=meta_info)
 
 
+
+# https://github.com/vllm-project/vllm/issues/13175
+def _monkey_patch_compute_logits(model, vocab_size: int):
+    original_compute_logits = model.compute_logits
+
+    def compute_logits(
+        self,
+        hidden_states: torch.Tensor,
+        sampling_metadata: SamplingMetadata,
+    ) -> torch.Tensor:
+        logits = original_compute_logits(hidden_states, sampling_metadata)
+        logits[..., vocab_size:] = float("-inf")
+        return logits
+
+    model.compute_logits = MethodType(compute_logits, model)
+
 class vLLMAsyncRollout:
     """vLLMAsyncRollout is a thin wrapper of WorkerWrapperBase,
     which is engine in single worker process.
     """
+    def __init__(self, model_path: str, config: DictConfig, tokenizer, model_hf_config, **kwargs):
+        self.tokenizer = tokenizer
 
-    def __init__(self, *args, **kwargs):
         # Engine is deferred to be initialized in init_worker
+        self.config = config
         self.inference_engine: WorkerWrapperBase = None
         self.sharding_manager = None
         self.is_sleep = False
+        self.address = self._init_zeromq()
+
+    def _init_zeromq(self) -> str:
+        tensor_parallel_size = self.config.tensor_model_parallel_size
+
+        # single node: ipc, multi nodes: tcp
+        local_world_size = int(os.environ["RAY_LOCAL_WORLD_SIZE"])
+        socket_type = "ipc" if tensor_parallel_size <= local_world_size else "tcp"
+
+        # File lock to prevent multiple workers listen to same port
+        with FileLock("/tmp/siirl_vllm_zmq.lock"):
+            if socket_type == "ipc":
+                pid = os.getpid()
+                address = f"ipc:///tmp/siirl_vllm_zmq_{pid}.ipc"
+            else:
+                ip, port = self._get_free_port()
+                address = f"tcp://{ip}:{port}"
+            context = zmq.Context()
+            self.socket = context.socket(zmq.REP)
+            self.socket.bind(address)
+
+        self.loop_thread = threading.Thread(target=self._loop_forever)
+        self.loop_thread.start()
+        return address
+
+    def _get_free_port(self):
+        ip = ray._private.services.get_node_ip_address()
+        with socket.socket() as sock:
+            sock.bind(("", 0))
+            port = sock.getsockname()[1]
+        return ip, port
+
+    def _loop_forever(self):
+        while True:
+            message = self.socket.recv()
+            method, args, kwargs = pickle.loads(message)
+            result = self.execute_method(method, *args, **kwargs)
+            self.socket.send(pickle.dumps(result))
+
+    def get_zeromq_address(self):
+        return self.address
 
     def init_worker(self, all_kwargs: List[Dict[str, Any]]):
         """Initialize worker engine."""
@@ -441,13 +522,15 @@ class vLLMAsyncRollout:
         self.inference_engine = WorkerWrapperBase(vllm_config=self.vllm_config)
         self.inference_engine.init_worker(all_kwargs)
 
-    def load_model(self, *args, **kwargs):
+
+    def load_model(self, *args, **kwargs): 
         self.inference_engine.load_model(*args, **kwargs)
 
         # inference engine is initialized now, update sharding manager
         self.sharding_manager.inference_engine = self.inference_engine
         self.sharding_manager.model_runner = self.inference_engine.worker.model_runner
 
+        _monkey_patch_compute_logits(self.inference_engine.worker.model_runner.model, len(self.tokenizer))
     def sleep(self, *args, **kwargs):
         """Offload model weights and discard kv cache."""
         if self.is_sleep:
