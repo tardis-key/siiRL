@@ -67,6 +67,7 @@ from siirl.utils.debug import GPUMemoryLogger
 from siirl.utils.model_utils.torch_functional import get_response_mask, pad_2d_list_to_length
 from siirl.utils.params import RolloutArguments
 from siirl.workers.rollout.base import BaseRollout
+from siirl.utils.extras.device import is_cuda_available
 
 # TODO
 # 1. support pp in vllm
@@ -160,7 +161,7 @@ class vLLMRollout(BaseRollout):
             engine_kwargs["limit_mm_per_prompt"] = {"image": config.limit_images}
 
         vllm_version = version("vllm")
-        if vs.parse(vllm_version) >= vs.parse("0.9.0"):
+        if vs.parse(vllm_version) >= vs.parse("0.9.0") and is_cuda_available:
             logger.info(f"Add environment variable for vLLM version {vllm_version}")
             # This environment variable is mandatory due to an issue where PyTorch 2.7.0
             #   causes flashinfer to fail with the error `FlashInfer requires sm75+`.
