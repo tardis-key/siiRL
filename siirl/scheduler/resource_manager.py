@@ -76,7 +76,7 @@ class ResourcePoolManager:
                 node: node_info.get("GPU", 0) if "GPU" in node_info else node_info.get("NPU", 0)
                 for node, node_info in node_available_resources.items()
             }
-            logger.success(node_available_resources)
+            # logger.success(node_available_resources)
             total_available_gpus = sum(node_available_gpus.values())
 
             if total_available_gpus >= total_required_gpus:
