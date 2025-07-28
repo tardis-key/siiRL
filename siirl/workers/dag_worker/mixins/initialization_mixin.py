@@ -120,7 +120,7 @@ class InitializationMixin:
         import torch.distributed as dist
 
         if not dist.is_initialized():
-            backend = f"{get_nccl_backend()}" if self.world_size > self.config.dag.backend_threshold else f"cpu:gloo,{get_device_name()}:{get_nccl_backend()}"
+            backend = f"{get_nccl_backend()}" if self.world_size >= self.config.dag.backend_threshold else f"cpu:gloo,{get_device_name()}:{get_nccl_backend()}"
             logger.info(f"Rank {self._rank}: Initializing world size {self.world_size} default process group with '{backend}' backend.")
             dist.init_process_group(backend=backend)
 

@@ -338,7 +338,7 @@ dag:
   env_enable: False
   environment_path: null
   enable_perf: False
-  backend_threshold: 512  # World size threshold for backend selection
+  backend_threshold: 256  # World size threshold for backend selection
 
 hydra:
   run:
