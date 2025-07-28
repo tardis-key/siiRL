@@ -173,12 +173,11 @@ class vLLMRollout(BaseRollout):
 
         self.inference_engine = LLM(
             model=model_path,
-            tokenizer=model_path,
             enable_sleep_mode=True,
             tensor_parallel_size=tensor_parallel_size,
             distributed_executor_backend="external_launcher",
             dtype=config.dtype,
-            enforce_eager=False,
+            enforce_eager=config.enforce_eager,
             gpu_memory_utilization=config.gpu_memory_utilization,
             disable_custom_all_reduce=True,
             skip_tokenizer_init=False,
@@ -189,10 +188,11 @@ class vLLMRollout(BaseRollout):
             enable_chunked_prefill=config.enable_chunked_prefill,
             enable_prefix_caching=True,
             trust_remote_code=trust_remote_code,
-            seed=self.config.seed,
+            seed=config.seed,  # Use None for random seed to avoid identical outputs for repeated inputs
             **lora_kwargs,
             **engine_kwargs,
         )
+
 
         # Offload vllm model to reduce peak memory usage
         self.inference_engine.sleep(level=1)
@@ -209,12 +209,14 @@ class vLLMRollout(BaseRollout):
         # supporting adding any sampling params from the config file
         dictConfig = config.to_dict()
         for k in dictConfig.keys():
-            if hasattr(SamplingParams(), str(k)):
+            if hasattr(SamplingParams(), str(k)) and k != "seed":
                 kwargs[k] = dictConfig.get(k)
+
         # kwargs["n"] = 1  # already repeat in ray_trainer
 
         logger.info(f"kwargs: {kwargs}")
         self.sampling_params = SamplingParams(**kwargs)
+
         if "internvl" in model_hf_config.model_type:
             stop_tokens = ["<|endoftext|>", "<|im_start|>", "<|im_end|>", "<|end|>"]
             stop_token_ids = [tokenizer.convert_tokens_to_ids(i) for i in stop_tokens]
@@ -283,11 +285,12 @@ class vLLMRollout(BaseRollout):
 
         # ensure the type of `prompt_token_ids` passed to vllm is list[int]
         # https://github.com/volcengine/verl/pull/772
-        for input_data in vllm_inputs:
+        for i, input_data in enumerate(vllm_inputs):
             if isinstance(input_data["prompt_token_ids"], np.ndarray):
                 input_data["prompt_token_ids"] = input_data["prompt_token_ids"].tolist()
             elif not isinstance(input_data["prompt_token_ids"], list):
                 raise TypeError(f"prompt_token_ids must be a list or numpy array, got {type(input_data['prompt_token_ids'])}")
+
 
         prompt_lengths = []
         if self.enbale_perf:
@@ -298,6 +301,7 @@ class vLLMRollout(BaseRollout):
 
         do_sample = prompts.meta_info.get("do_sample", True)
         is_validate = prompts.meta_info.get("validate", False)
+
         if not do_sample:
             kwargs = {
                 "best_of": 1,
@@ -325,6 +329,7 @@ class vLLMRollout(BaseRollout):
 
         # users can customize different sampling_params at different run
         with self.update_sampling_params(**kwargs):
+            logger.info(f"vllm generate sampling params: {self.sampling_params}")
             # if micro_batch_size is configured, split the batch into smaller chunks
             # and generate sequences for each chunk sequentially.
             if self.micro_batch_size > 0:
@@ -524,7 +529,7 @@ class vLLMAsyncRollout:
         self.inference_engine.init_worker(all_kwargs)
 
 
-    def load_model(self, *args, **kwargs): 
+    def load_model(self, *args, **kwargs):
         self.inference_engine.load_model(*args, **kwargs)
 
         # inference engine is initialized now, update sharding manager
