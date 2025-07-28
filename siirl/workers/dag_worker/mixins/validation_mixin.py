@@ -166,7 +166,9 @@ class ValidationMixin:
             output = rollout_worker.generate_sequences(gen_batch)
         elif self._async_rollout_manager:
             output = self._async_rollout_manager.generate_sequences(gen_batch)
-        return batch_proto.union(output)
+        if output:
+            batch_proto.union(output)
+        return batch_proto
 
     def _score_and_package_results(self, generated_proto: DataProto) -> List[ValidationResult]:
         """Scores generated sequences and packages them into ValidationResult objects."""
