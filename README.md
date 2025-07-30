@@ -6,7 +6,7 @@
 <br>
 
 <h1 align="center">
-siiRL: Shanghai Inovation Institute RL Framework for LLM Post-Training
+siiRL: Shanghai Innovation Institute RL Framework for Advanced LLMs and Multi-Agent Systems
 </h1>
 
 <p align="center">
