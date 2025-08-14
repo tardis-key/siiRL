@@ -76,17 +76,15 @@ Last updated: 08/14/2025.
 采集后的数据存放在用户设置的save_path下，可通过 `MindStudio Insight <https://www.hiascend.com/document/detail/zh/mindstudio/80RC1/GUI_baseddevelopmenttool/msascendinsightug/Insight_userguide_0002.html>`_ 工具进行可视化。
 
 如果analysis参数设置为False，采集之后需要进行离线解析：
+
 .. code:: python
 
+        import argparse
+        from torch_npu.profiler.profiler import analyse
 
-    import argparse
-    from torch_npu.profiler.profiler import analyse
+        parser = argparse.ArgumentParser()
+        parser.add_argument("--path", type=str, default="facebook/opt-125m")
 
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--path", type=str, default="facebook/opt-125m")
-
-    if __name__ == "__main__":
-    args = parser.parse_args()
-    path = args.path
-
-    analyse(profiler_path=path)
+        if __name__ == "__main__":
+         args = parser.parse_args()
+         path = args.path
