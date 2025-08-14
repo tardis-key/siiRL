@@ -77,6 +77,8 @@ Last updated: 08/14/2025.
 
 如果analysis参数设置为False，采集之后需要进行离线解析：
 .. code:: python
+
+
     import argparse
     from torch_npu.profiler.profiler import analyse
 
