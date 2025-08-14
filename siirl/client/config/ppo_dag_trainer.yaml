@@ -347,7 +347,7 @@ hydra:
 
 profiler:
   enable: False
-  save_path: null
+  save_path: "./prof_data"  # Storage path for collected data.
   level: "level1"  # Collection level, optional values: level_none, level0, level1, level2.
   with_memory: False  # Whether to enable memory analysis.
   record_shapes: False  # Whether to record tensor shape.
@@ -360,5 +360,5 @@ profiler:
   roles: ['generate', 'compute_reward']  # used for discrete mode, optional values: generate, compute_reward, compute_old_log_prob, compute_ref_log_porb, compute_value, compute_advantage, train_critic, train_actor
   all_ranks: False  # Whether to profile all ranks.
   ranks: [0]  # The ranks that will be profiled. [] or [0,1,...]
-  profile_steps: [0]
+  profile_steps: [0]  # The steps that will be profiled.
   
