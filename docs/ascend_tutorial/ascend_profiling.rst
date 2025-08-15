@@ -15,7 +15,7 @@ Last updated: 08/14/2025.
 - enable: 是否启用性能分析。
 - save_path: 保存采集数据的路径。
 
-- level: 采集级别—选项有 level_none、level0、level1 和 level2
+- level: 采集级别，选项有 level_none、level0、level1 和 level2
    -  level_none: 禁用所有基于级别的数据采集（关闭 profiler_level）。
    -  level0: 采集高级应用数据、底层NPU数据和NPU上的算子执行详情。
    -  level1: 在level0基础上增加CANN层AscendCL数据和NPU上的AI Core性能指标。
@@ -30,9 +30,7 @@ Last updated: 08/14/2025.
 - analysis: 启用自动数据解析。
 - discrete: 是否启用离散模式，分别收集各个阶段的性能数据(默认为False)
 
-- roles: 采集阶段-与discrete参数配合使用-选项有
-    generate,compute_reward,compute_old_log_prob,compute_ref_log_prob,compute_value,compute_advantage,
-    train_critic,train_actor
+- roles: 采集阶段-与discrete参数配合使用-选项有 generate, compute_reward, ,compute_ref_log_prob, compute_value, compute_advantage, train_critic, train_actor
 
 - all_ranks: 是否从所有rank收集数据。
 - ranks: 要收集数据的rank列表。如果为空，则不收集数据。
