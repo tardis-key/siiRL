@@ -154,7 +154,7 @@ class DistProfiler:
         self.config = config
         if self.config.enable and is_nvtx_available():
             self.config.enable = False
-            logger.warning("!!!!!!!!!!!!!!!Currently only support NPU profiling.!!!!!!!!!!!!!!!")
+            logger.error("!!!!!!!!!!!!!!!Currently only support NPU profiling.!!!!!!!!!!!!!!!")
 
     def start(self, **kwargs):
         pass
