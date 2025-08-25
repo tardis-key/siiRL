@@ -88,7 +88,6 @@ def marked_timer(name: str, timing_raw: dict[str, float], *args: Any, **kwargs: 
 
 
 def get_npu_profiler(config: ProfilerArguments, role: Optional[str] = None, profile_step: Optional[str] = None):
-    # 代码注释todo
     """Generate and return an NPU profiler object.
     """
     if config.level == "level_none":

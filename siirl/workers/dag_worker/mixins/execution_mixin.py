@@ -230,7 +230,6 @@ class ExecutionMixin:
 
             # --- 2. Graph Traversal ---
             visited_nodes = set()
-            # todo 怎么和timer结合起来
             with self._timer("graph_execution", timing_raw):
                 while node_queue:
                     with self._timer("graph_loop_management", timing_raw):

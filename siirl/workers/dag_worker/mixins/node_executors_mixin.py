@@ -46,7 +46,6 @@ class NodeExecutorsMixin:
     _get_node: Any
     _reduce_and_broadcast_metrics: Any
 
-    # todo 确认颜色
     @DistProfiler.annotate(role="generate")
     def generate(self, worker_group_index: int, batch: DataProto, **kwargs) -> NodeOutput:
         """Generates sequences for a training batch using the rollout model."""
